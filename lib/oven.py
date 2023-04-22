@@ -237,6 +237,7 @@ class Oven(threading.Thread):
         self.target = 0
         self.heat = 0
         self.pid = PID(ki=config.pid_ki, kd=config.pid_kd, kp=config.pid_kp)
+        
 
     def emergency_reset(self):
         self.cost = 0
@@ -546,11 +547,13 @@ class RealOven(Oven):
 
     def reset(self):
         super().reset()
+        self.GPIO.output(config.gpio_relay, self.GPIO.HIGH)
         self.output.cool(0)
     
     def emergency_reset(self):
         super().emergency_reset()
         self.output.emergency_shutoff()
+        self.output.cool(0)
 
     def heat_then_cool(self):
         pid = self.pid.compute(self.target,
