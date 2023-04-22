@@ -94,10 +94,19 @@ class Board(object):
             except ImportError:
                 msg = "max31856 config set, but import failed"
                 log.warning(msg)
+        
+        if config.max6675:
+            try:
+                self.name='MAX6675'
+                self.active = True
+                log.info("import %s " % (self.name))
+            except ImportError:
+                msg = "max6675 config set, but import failed"
+                log.warning(msg)
 
     def create_temp_sensor(self):
         if config.simulate == True:
-            self.temp_sensor = TempSensorSimulate()
+            self.temp_sensor = TempSensorSimulated()
         else:
             self.temp_sensor = TempSensorReal()
 
@@ -149,6 +158,14 @@ class TempSensorReal(TempSensor):
                                          units = config.temp_scale,
                                          ac_freq_50hz = config.ac_freq_50hz,
                                          )
+        
+        if config.max6675:
+            log.info("init MAX6675")
+            from max6675 import MAX6675, MMAX6675Error
+            self.thermocouple = MAX6675(config.gpio_sensor_cs,
+                                     config.gpio_sensor_clock,
+                                     config.gpio_sensor_data,
+                                     config.temp_scale)
 
     def run(self):
         '''use a moving average of config.temperature_average_samples across the time_step'''

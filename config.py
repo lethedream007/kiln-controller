@@ -3,6 +3,8 @@ import os
 
 # uncomment this if using MAX-31856
 #from lib.max31856 import MAX31856
+# uncomment this if using MAX-6675
+from lib.max6675 import MAX6675
 
 ########################################################################
 #
@@ -42,8 +44,10 @@ gpio_relay = 24 # Switches mechanical relay (main power switch to the elements)
 ### Thermocouple Adapter selection:
 #   max31855 - bitbang SPI interface
 #   max31856 - bitbang SPI interface. must specify thermocouple_type.
-max31855 = 1
+#   max6675  - bitbang SPI interface
+max31855 = 0
 max31856 = 0
+max6675 = 1
 # see lib/max31856.py for other thermocouple_type, only applies to max31856
 # uncomment this if using MAX-31856
 #thermocouple_type = MAX31856.MAX31856_S_TYPE
