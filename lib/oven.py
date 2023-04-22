@@ -62,6 +62,10 @@ class Output(object):
         log.warning(msg)
         self.active = False
         self.GPIO.output(config.gpio_relay, self.GPIO.LOW) # disconnect the main mechanical relay which is normally open (NO)
+    
+    def reset_mechanical_relay(self):
+        self.GPIO.output(config.gpio_relay, self.GPIO.HIGH)
+        self.active = True
 
 # FIX - Board class needs to be completely removed
 class Board(object):
@@ -547,7 +551,7 @@ class RealOven(Oven):
 
     def reset(self):
         super().reset()
-        self.GPIO.output(config.gpio_relay, self.GPIO.HIGH)
+        self.output.reset_mechanical_relay()
         self.output.cool(0)
     
     def emergency_reset(self):
