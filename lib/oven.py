@@ -39,7 +39,8 @@ class Output(object):
             import RPi.GPIO as GPIO
             GPIO.setmode(GPIO.BCM)
             GPIO.setwarnings(False)
-            GPIO.setup(config.gpio_heat, GPIO.OUT)
+            GPIO.setup(config.gpio_heat, GPIO.OUT, initial=0)
+            GPIO.setup(config.gpio_relay, GPIO.OUT, initial=1) # close mechanical relay
             self.active = True
             self.GPIO = GPIO
         except:
@@ -55,6 +56,12 @@ class Output(object):
         '''no active cooling, so sleep'''
         self.GPIO.output(config.gpio_heat, self.GPIO.LOW)
         time.sleep(sleepfor)
+
+    def emergency_shutoff(self):
+        msg = "Emergency shut-off, disable the mechanical relay!"
+        log.warning(msg)
+        self.active = False
+        self.GPIO.output(config.gpio_relay, self.GPIO.LOW) # disconnect the main mechanical relay which is normally open (NO)
 
 # FIX - Board class needs to be completely removed
 class Board(object):
@@ -214,6 +221,17 @@ class Oven(threading.Thread):
         self.heat = 0
         self.pid = PID(ki=config.pid_ki, kd=config.pid_kd, kp=config.pid_kp)
 
+    def emergency_reset(self):
+        self.cost = 0
+        self.state = "IDLE"
+        self.profile = None
+        self.start_time = 0
+        self.runtime = 0
+        self.totaltime = 0
+        self.target = 0
+        self.heat = 0
+        self.pid = PID(ki=config.pid_ki, kd=config.pid_kd, kp=config.pid_kp)
+
     def run_profile(self, profile, startat=0):
         self.reset()
 
@@ -241,6 +259,10 @@ class Oven(threading.Thread):
 
     def abort_run(self):
         self.reset()
+        self.save_automatic_restart_state()
+
+    def emergency_abort_run(self):
+        self.emergency_reset()
         self.save_automatic_restart_state()
 
     def kiln_must_catch_up(self):
@@ -275,22 +297,22 @@ class Oven(threading.Thread):
             config.emergency_shutoff_temp):
             log.info("emergency!!! temperature too high")
             if config.ignore_temp_too_high == False:
-                self.abort_run()
+                self.emergency_abort_run()
 
         if self.board.temp_sensor.noConnection:
             log.info("emergency!!! lost connection to thermocouple")
             if config.ignore_lost_connection_tc == False:
-                self.abort_run()
+                self.emergency_abort_run()
 
         if self.board.temp_sensor.unknownError:
             log.info("emergency!!! unknown thermocouple error")
             if config.ignore_unknown_tc_error == False:
-                self.abort_run()
+                self.emergency_abort_run()
 
         if self.board.temp_sensor.bad_percent > 30:
             log.info("emergency!!! too many errors in a short period")
             if config.ignore_too_many_tc_errors == False:
-                self.abort_run()
+                self.emergency_abort_run()
 
     def reset_if_schedule_ended(self):
         if self.runtime > self.totaltime:
@@ -508,6 +530,10 @@ class RealOven(Oven):
     def reset(self):
         super().reset()
         self.output.cool(0)
+    
+    def emergency_reset(self):
+        super().emergency_reset()
+        self.output.emergency_shutoff()
 
     def heat_then_cool(self):
         pid = self.pid.compute(self.target,
