@@ -13,7 +13,7 @@ Turns a Raspberry Pi into an inexpensive, web-enabled kiln controller.
   * supports PID parameters you tune to your kiln
   * monitors temperature in kiln after schedule has ended
   * api for starting and stopping at any point in a schedule
-  * supports MAX31856 and MAX31855 thermocouple boards
+  * supports MAX31856, MAX31855, and MAX6675 thermocouple boards
   * support for K, J, N, R, S, T, E, or B type thermocouples
   * accurate simulation
   * support for shifting schedule when kiln cannot heat quickly enough
