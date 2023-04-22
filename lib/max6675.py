@@ -103,9 +103,9 @@ class MAX6675Error(Exception):
 if __name__ == "__main__":
 
     # default example
-    cs_pin = 24
-    clock_pin = 23
-    data_pin = 22
+    cs_pin = 27
+    clock_pin = 22
+    data_pin = 17
     units = "c"
     thermocouple = MAX6675(cs_pin, clock_pin, data_pin, units)
     running = True

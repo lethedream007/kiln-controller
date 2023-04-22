@@ -144,8 +144,8 @@ thermocouple_offset=0
 # number of samples of temperature to average.
 # If you suffer from the high temperature kiln issue and have set 
 # honour_theromocouple_short_errors to False,
-# you will likely need to increase this (eg I use 40)
-temperature_average_samples = 40 
+# you will likely need to increase this (eg I use 10)
+temperature_average_samples = 10 
 
 # Thermocouple AC frequency filtering - set to True if in a 50Hz locale, else leave at False for 60Hz locale
 ac_freq_50hz = False

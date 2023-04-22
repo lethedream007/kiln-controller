@@ -161,7 +161,7 @@ class TempSensorReal(TempSensor):
         
         if config.max6675:
             log.info("init MAX6675")
-            from max6675 import MAX6675, MMAX6675Error
+            from max6675 import MAX6675, MAX6675Error
             self.thermocouple = MAX6675(config.gpio_sensor_cs,
                                      config.gpio_sensor_clock,
                                      config.gpio_sensor_data,
