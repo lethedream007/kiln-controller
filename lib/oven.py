@@ -240,6 +240,7 @@ class Oven(threading.Thread):
         self.reset()
 
         if config.enableDisplay:
+            self.display_text = ""
             # First define some constants to allow easy resizing of shapes.
             FONTSIZE = 20
 
@@ -281,12 +282,12 @@ class Oven(threading.Thread):
 
     #        # Draw a white filled box as the background
             self.draw.rectangle((0, 0, width, height), fill=(255, 255, 255))
-            text = "Kiln Ready."
+            self.display_text = "Kiln Ready."
 
     #        (font_width, font_height) = self.font.getsize(text)
             self.draw.text(
                 (10, 10),
-                text,
+                self.display_text,
                 font=self.font,
                 fill=(0, 0, 0),
             )
@@ -610,31 +611,29 @@ class SimulatedOven(Oven):
                 width = self.disp.width  # we swap height/width to rotate it to landscape!
                 height = self.disp.height
             
-            # Draw a blank rectangle to clear the screen
-            self.draw.rectangle((0, 0, width, height), fill=(255, 255, 255))
-            self.disp.image(self.image)
+            # remove the text on display
+            self.draw.multiline_text(
+                (10, 10),
+                self.display_text,
+                font=self.font,
+                fill=(255, 255, 255),
+            )
+#           self.disp.image(self.image)
             # Draw temperature Text
-            text = "Kiln: " + str(int(self.temperature)) + " F \n"
-            text += "Target: " + str(int(self.target)) + " F \n"
-            text += "Heat on: " + str(int(self.heat / self.time_step * 100)) + "%" 
-
+            self.display_text = "Kiln: " + str(int(self.temperature)) + " F \n"
+            self.display_text += "Target: " + str(int(self.target)) + " F \n"
+            self.display_text += "Heat on: " + str(int(self.heat / self.time_step * 100)) + "%" 
+            self.display_text += str(datetime.timedelta(seconds=((self.totaltime - self.runtime)//1)))
     #        (font_width, font_height) = self.font.getsize(text)
             self.draw.multiline_text(
                 (10, 10),
-                text,
+                self.display_text,
                 font=self.font,
                 fill=(0, 0, 0),
             )
             # heat bar
-            self.draw.rectangle((0, 80, int(width * self.heat / self.time_step), 100), fill=(0, 0, 255))
-            self.draw.rectangle((int(width * self.heat / self.time_step), 80, width, 100), fill=(255, 0, 0))
-            text = str(datetime.timedelta(seconds=self.totaltime - self.runtime))
-            self.draw.text(
-                (10, 101),
-                text,
-                font=self.font,
-                fill=(0, 0, 0),
-            )
+            self.draw.rectangle((0, 100, int(width * self.heat / self.time_step), 120), fill=(0, 0, 255))
+            self.draw.rectangle((int(width * self.heat / self.time_step), 100, width, 120), fill=(255, 0, 0))
             # Display image.
             self.disp.image(self.image)
         else:
@@ -648,6 +647,7 @@ class RealOven(Oven):
         self.output = Output()
         self.reset()
         self.heat_display = 0
+        
 
         # call parent init
         Oven.__init__(self)
@@ -710,31 +710,30 @@ class RealOven(Oven):
                 width = self.disp.width  # we swap height/width to rotate it to landscape!
                 height = self.disp.height
             
-            # Draw a blank rectangle to clear the screen
-            self.draw.rectangle((0, 0, width, height), fill=(255, 255, 255))
-            self.disp.image(self.image)
+            # remove the text on display
+            self.draw.multiline_text(
+                (10, 10),
+                self.display_text,
+                font=self.font,
+                fill=(255, 255, 255),
+            )
+#            self.disp.image(self.image)
             # Draw temperature Text
-            text = "Kiln: " + str(int(self.board.temp_sensor.temperature)) + " F \n"
-            text += "Target: " + str(int(self.target)) + " F \n"
-            text += "Heat on: " + str(int(self.heat_display / self.time_step * 100)) + "%" 
+            self.display_text = "Kiln: " + str(int(self.board.temp_sensor.temperature)) + " F \n"
+            self.display_text += "Target: " + str(int(self.target)) + " F \n"
+            self.display_text += "Heat on: " + str(int(self.heat_display / self.time_step * 100)) + "%" 
+            self.display_text += str(datetime.timedelta(seconds=((self.totaltime - self.runtime)//1)))
 
     #        (font_width, font_height) = self.font.getsize(text)
             self.draw.multiline_text(
                 (10, 10),
-                text,
+                self.display_text,
                 font=self.font,
                 fill=(0, 0, 0),
             )
             # heat bar
-            self.draw.rectangle((0, 80, int(width * self.heat_display / self.time_step), 100), fill=(0, 0, 255))
-            self.draw.rectangle((int(width * self.heat_display / self.time_step), 80, width, 100), fill=(255, 0, 0))
-            text = str(datetime.timedelta(seconds=self.totaltime - self.runtime))
-            self.draw.text(
-                (10, 101),
-                text,
-                font=self.font,
-                fill=(0, 0, 0),
-            )
+            self.draw.rectangle((0, 100, int(width * self.heat_display / self.time_step), 120), fill=(0, 0, 255))
+            self.draw.rectangle((int(width * self.heat_display / self.time_step), 100, width, 120), fill=(255, 0, 0))
             # Display image.
             self.disp.image(self.image)
         else:
