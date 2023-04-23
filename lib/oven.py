@@ -622,8 +622,8 @@ class SimulatedOven(Oven):
             # Draw temperature Text
             self.display_text = "Kiln: " + str(int(self.temperature)) + " F \n"
             self.display_text += "Target: " + str(int(self.target)) + " F \n"
-            self.display_text += "Heat on: " + str(int(self.heat / self.time_step * 100)) + "%" 
-            self.display_text += str(datetime.timedelta(seconds=((self.totaltime - self.runtime)//1)))
+            self.display_text += "Heat on: " + str(int(self.heat / self.time_step * 100)) + "% \n" 
+            self.display_text += "Left: " + str(datetime.timedelta(seconds=((self.totaltime - self.runtime)//1)))
     #        (font_width, font_height) = self.font.getsize(text)
             self.draw.multiline_text(
                 (10, 10),
@@ -721,8 +721,8 @@ class RealOven(Oven):
             # Draw temperature Text
             self.display_text = "Kiln: " + str(int(self.board.temp_sensor.temperature)) + " F \n"
             self.display_text += "Target: " + str(int(self.target)) + " F \n"
-            self.display_text += "Heat on: " + str(int(self.heat_display / self.time_step * 100)) + "%" 
-            self.display_text += str(datetime.timedelta(seconds=((self.totaltime - self.runtime)//1)))
+            self.display_text += "Heat on: " + str(int(self.heat_display / self.time_step * 100)) + "% \n" 
+            self.display_text += "Left: " + str(datetime.timedelta(seconds=((self.totaltime - self.runtime)//1)))
 
     #        (font_width, font_height) = self.font.getsize(text)
             self.draw.multiline_text(
@@ -732,8 +732,8 @@ class RealOven(Oven):
                 fill=(0, 0, 0),
             )
             # heat bar
-            self.draw.rectangle((0, 100, int(width * self.heat_display / self.time_step), 120), fill=(0, 0, 255))
-            self.draw.rectangle((int(width * self.heat_display / self.time_step), 100, width, 120), fill=(255, 0, 0))
+            self.draw.rectangle((0, 105, int(width * self.heat_display / self.time_step), 120), fill=(0, 0, 255))
+            self.draw.rectangle((int(width * self.heat_display / self.time_step), 105, width, 120), fill=(255, 0, 0))
             # Display image.
             self.disp.image(self.image)
         else:
