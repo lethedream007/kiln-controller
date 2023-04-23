@@ -237,7 +237,6 @@ class Oven(threading.Thread):
         self.daemon = True
         self.temperature = 0
         self.time_step = config.sensor_time_wait
-        self.reset()
 
         if config.enableDisplay:
             self.display_text = ""
@@ -293,6 +292,8 @@ class Oven(threading.Thread):
             )
             self.disp.image(self.image)
 
+        self.reset()
+
         
 
     def reset(self):
@@ -305,6 +306,22 @@ class Oven(threading.Thread):
         self.target = 0
         self.heat = 0
         self.pid = PID(ki=config.pid_ki, kd=config.pid_kd, kp=config.pid_kp)
+        if config.enableDisplay:
+            self.draw.text(
+                (10, 10),
+                self.display_text,
+                font=self.font,
+                fill=(255, 255, 255),
+            )
+            self.display_text = "Kiln Ready."
+    #        (font_width, font_height) = self.font.getsize(text)
+            self.draw.text(
+                (10, 10),
+                self.display_text,
+                font=self.font,
+                fill=(0, 0, 0),
+            )
+            self.disp.image(self.image)
         
 
     def emergency_reset(self):
