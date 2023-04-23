@@ -237,64 +237,7 @@ class Oven(threading.Thread):
         self.daemon = True
         self.temperature = 0
         self.time_step = config.sensor_time_wait
-
-        if config.enableDisplay:
-            self.display_text = ""
-            # First define some constants to allow easy resizing of shapes.
-            FONTSIZE = 20
-
-            # Configuration for CS and DC pins (these are PiTFT defaults):
-            cs_pin = digitalio.DigitalInOut(board.CE0)
-            dc_pin = digitalio.DigitalInOut(board.D25)
-            reset_pin = digitalio.DigitalInOut(board.D24)
-
-            # Config for display baudrate (default max is 24mhz):
-            BAUDRATE = 24000000
-
-            # Setup SPI bus using hardware SPI:
-            spi = board.SPI()
-
-            # pylint: disable=line-too-long
-            # Create the display:
-            self.disp = st7735.ST7735R(spi, rotation=90,                           # 1.8" ST7735R
-                cs=cs_pin,
-                dc=dc_pin,
-                rst=reset_pin,
-                baudrate=BAUDRATE,
-            )
-            # pylint: enable=line-too-long
-
-            # Create blank image for drawing.
-            # Make sure to create image with mode 'RGB' for full color.
-            if self.disp.rotation % 180 == 90:
-                height = self.disp.width  # we swap height/width to rotate it to landscape!
-                width = self.disp.height
-            else:
-                width = self.disp.width  # we swap height/width to rotate it to landscape!
-                height = self.disp.height
-            # Load a TTF Font
-            self.font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", FONTSIZE)
-            self.image = Image.new("RGB", (width, height))
-
-            # Get drawing object to draw on image.
-            self.draw = ImageDraw.Draw(self.image)
-
-    #        # Draw a white filled box as the background
-            self.draw.rectangle((0, 0, width, height), fill=(255, 255, 255))
-            self.display_text = "Kiln Ready."
-
-    #        (font_width, font_height) = self.font.getsize(text)
-            self.draw.multiline_text(
-                (10, 10),
-                self.display_text,
-                font=self.font,
-                fill=(0, 0, 0),
-            )
-            self.disp.image(self.image)
-
         self.reset()
-
-        
 
     def reset(self):
         self.cost = 0
@@ -306,22 +249,6 @@ class Oven(threading.Thread):
         self.target = 0
         self.heat = 0
         self.pid = PID(ki=config.pid_ki, kd=config.pid_kd, kp=config.pid_kp)
-        if config.enableDisplay:
-            self.draw.multiline_text(
-                (10, 10),
-                self.display_text,
-                font=self.font,
-                fill=(255, 255, 255),
-            )
-            self.display_text = "Kiln Ready."
-    #        (font_width, font_height) = self.font.getsize(text)
-            self.draw.multiline_text(
-                (10, 10),
-                self.display_text,
-                font=self.font,
-                fill=(0, 0, 0),
-            )
-            self.disp.image(self.image)
         
 
     def emergency_reset(self):
@@ -552,6 +479,79 @@ class SimulatedOven(Oven):
         self.start()
         log.info("SimulatedOven started")
 
+        if config.enableDisplay:
+            self.display_text = ""
+            # First define some constants to allow easy resizing of shapes.
+            FONTSIZE = 20
+
+            # Configuration for CS and DC pins (these are PiTFT defaults):
+            cs_pin = digitalio.DigitalInOut(board.CE0)
+            dc_pin = digitalio.DigitalInOut(board.D25)
+            reset_pin = digitalio.DigitalInOut(board.D24)
+
+            # Config for display baudrate (default max is 24mhz):
+            BAUDRATE = 24000000
+
+            # Setup SPI bus using hardware SPI:
+            spi = board.SPI()
+
+            # pylint: disable=line-too-long
+            # Create the display:
+            self.disp = st7735.ST7735R(spi, rotation=90,                           # 1.8" ST7735R
+                cs=cs_pin,
+                dc=dc_pin,
+                rst=reset_pin,
+                baudrate=BAUDRATE,
+            )
+            # pylint: enable=line-too-long
+
+            # Create blank image for drawing.
+            # Make sure to create image with mode 'RGB' for full color.
+            if self.disp.rotation % 180 == 90:
+                height = self.disp.width  # we swap height/width to rotate it to landscape!
+                width = self.disp.height
+            else:
+                width = self.disp.width  # we swap height/width to rotate it to landscape!
+                height = self.disp.height
+            # Load a TTF Font
+            self.font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", FONTSIZE)
+            self.image = Image.new("RGB", (width, height))
+
+            # Get drawing object to draw on image.
+            self.draw = ImageDraw.Draw(self.image)
+
+    #        # Draw a white filled box as the background
+            self.draw.rectangle((0, 0, width, height), fill=(255, 255, 255))
+            self.display_text = "Kiln Ready."
+
+    #        (font_width, font_height) = self.font.getsize(text)
+            self.draw.multiline_text(
+                (10, 10),
+                self.display_text,
+                font=self.font,
+                fill=(0, 0, 0),
+            )
+            self.disp.image(self.image)
+
+    def reset(self):
+        super().reset()
+        if config.enableDisplay:
+            self.draw.multiline_text(
+                (10, 10),
+                self.display_text,
+                font=self.font,
+                fill=(255, 255, 255),
+            )
+            self.display_text = "Kiln Ready."
+    #        (font_width, font_height) = self.font.getsize(text)
+            self.draw.multiline_text(
+                (10, 10),
+                self.display_text,
+                font=self.font,
+                fill=(0, 0, 0),
+            )
+            self.disp.image(self.image)
+
     def heating_energy(self,pid):
         # using pid here simulates the element being on for
         # only part of the time_step
@@ -660,23 +660,92 @@ class SimulatedOven(Oven):
 class RealOven(Oven):
 
     def __init__(self):
-        # call parent init
-        Oven.__init__(self)
-
         self.board = Board()
         self.output = Output()
         self.reset()
         self.heat_display = 0
         
 
-        
+        # call parent init
+        Oven.__init__(self)
+
         # start thread
         self.start()
+
+        if config.enableDisplay:
+            self.display_text = ""
+            # First define some constants to allow easy resizing of shapes.
+            FONTSIZE = 20
+
+            # Configuration for CS and DC pins (these are PiTFT defaults):
+            cs_pin = digitalio.DigitalInOut(board.CE0)
+            dc_pin = digitalio.DigitalInOut(board.D25)
+            reset_pin = digitalio.DigitalInOut(board.D24)
+
+            # Config for display baudrate (default max is 24mhz):
+            BAUDRATE = 24000000
+
+            # Setup SPI bus using hardware SPI:
+            spi = board.SPI()
+
+            # pylint: disable=line-too-long
+            # Create the display:
+            self.disp = st7735.ST7735R(spi, rotation=90,                           # 1.8" ST7735R
+                cs=cs_pin,
+                dc=dc_pin,
+                rst=reset_pin,
+                baudrate=BAUDRATE,
+            )
+            # pylint: enable=line-too-long
+
+            # Create blank image for drawing.
+            # Make sure to create image with mode 'RGB' for full color.
+            if self.disp.rotation % 180 == 90:
+                height = self.disp.width  # we swap height/width to rotate it to landscape!
+                width = self.disp.height
+            else:
+                width = self.disp.width  # we swap height/width to rotate it to landscape!
+                height = self.disp.height
+            # Load a TTF Font
+            self.font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", FONTSIZE)
+            self.image = Image.new("RGB", (width, height))
+
+            # Get drawing object to draw on image.
+            self.draw = ImageDraw.Draw(self.image)
+
+    #        # Draw a white filled box as the background
+            self.draw.rectangle((0, 0, width, height), fill=(255, 255, 255))
+            self.display_text = "Kiln Ready."
+
+    #        (font_width, font_height) = self.font.getsize(text)
+            self.draw.multiline_text(
+                (10, 10),
+                self.display_text,
+                font=self.font,
+                fill=(0, 0, 0),
+            )
+            self.disp.image(self.image)
 
     def reset(self):
         super().reset()
         self.output.reset_mechanical_relay()
         self.output.cool(0)
+        if config.enableDisplay:
+            self.draw.multiline_text(
+                (10, 10),
+                self.display_text,
+                font=self.font,
+                fill=(255, 255, 255),
+            )
+            self.display_text = "Kiln Ready."
+    #        (font_width, font_height) = self.font.getsize(text)
+            self.draw.multiline_text(
+                (10, 10),
+                self.display_text,
+                font=self.font,
+                fill=(0, 0, 0),
+            )
+            self.disp.image(self.image)
     
     def emergency_reset(self):
         super().emergency_reset()
