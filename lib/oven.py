@@ -265,9 +265,23 @@ class Oven(threading.Thread):
         # Create blank image for drawing.
         # Make sure to create image with mode 'RGB' for full color.
         if self.disp.rotation % 180 == 90:
+            height = self.disp.width  # we swap height/width to rotate it to landscape!
+            width = self.disp.height
+        else:
+            width = self.disp.width  # we swap height/width to rotate it to landscape!
             height = self.disp.height
-            self.disp.height = self.disp.width  # we swap height/width to rotate it to landscape!
-            self.disp.width = height
+
+        self.image = Image.new("RGB", (width, height))
+
+        # Get drawing object to draw on image.
+        self.draw = ImageDraw.Draw(self.image)
+
+#        # Draw a white filled box as the background
+        self.draw.rectangle((0, 0, width, height), fill=(255, 255, 255))
+        self.disp.image(self.image)
+
+        # Load a TTF Font
+        self.font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", FONTSIZE)
 
     def reset(self):
         self.cost = 0
@@ -469,33 +483,25 @@ class Oven(threading.Thread):
         self.ovenwatcher = watcher
 
     def display(self):
-        width = self.disp.width
-        height = self.disp.height
-        FONTSIZE = 24
-        image = Image.new("RGB", (width, height))
-
-        # Get drawing object to draw on image.
-        draw = ImageDraw.Draw(image)
-
-#        # Draw a green filled box as the background
-#        draw.rectangle((0, 0, width, height), fill=(255, 255, 255))
-#        disp.image(image)
-
-        # Load a TTF Font
-        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", FONTSIZE)
-
+        # Make sure to create image with mode 'RGB' for full color.
+        if self.disp.rotation % 180 == 90:
+            height = self.disp.width  # we swap height/width to rotate it to landscape!
+            width = self.disp.height
+        else:
+            width = self.disp.width  # we swap height/width to rotate it to landscape!
+            height = self.disp.height
         # Draw Some Text
         text = str(int(self.temperature))
-        (font_width, font_height) = font.getsize(text)
-        draw.text(
+        (font_width, font_height) = self.font.getsize(text)
+        self.draw.text(
             (width // 2 - font_width // 2, height // 2 - font_height // 2),
             text,
-            font=font,
+            font=self.font,
             fill=(0, 0, 0),
         )
 
         # Display image.
-        self.disp.image(image)
+        self.disp.image(self.image)
 
     def run(self):
         while True:
