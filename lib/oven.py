@@ -490,8 +490,12 @@ class Oven(threading.Thread):
         else:
             width = self.disp.width  # we swap height/width to rotate it to landscape!
             height = self.disp.height
+        
+        # Draw a blank rectangle to clear the screen
+        self.draw.rectangle((0, 0, width, height), fill=(255, 255, 255))
+        self.disp.image(self.image)
         # Draw Some Text
-        text = str(int(self.temperature))
+        text = "Temperature: " + str(int(self.temperature))
         (font_width, font_height) = self.font.getsize(text)
         self.draw.text(
             (width // 2 - font_width // 2, height // 2 - font_height // 2),
