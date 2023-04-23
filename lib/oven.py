@@ -661,11 +661,6 @@ class SimulatedOven(Oven):
 class RealOven(Oven):
 
     def __init__(self):
-        self.board = Board()
-        self.output = Output()
-        self.reset()
-        self.heat_display = 0
-        
         if config.enableDisplay:
             self.display_text = ""
             # First define some constants to allow easy resizing of shapes.
@@ -719,7 +714,12 @@ class RealOven(Oven):
                 fill=(0, 0, 0),
             )
             self.disp.image(self.image)
-            
+
+        self.board = Board()
+        self.output = Output()
+        self.reset()
+        self.heat_display = 0
+        
         # call parent init
         Oven.__init__(self)
 
