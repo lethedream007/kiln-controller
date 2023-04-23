@@ -660,15 +660,16 @@ class SimulatedOven(Oven):
 class RealOven(Oven):
 
     def __init__(self):
+        # call parent init
+        Oven.__init__(self)
+
         self.board = Board()
         self.output = Output()
         self.reset()
         self.heat_display = 0
         
 
-        # call parent init
-        Oven.__init__(self)
-
+        
         # start thread
         self.start()
 
