@@ -271,7 +271,8 @@ class Oven(threading.Thread):
         else:
             width = self.disp.width  # we swap height/width to rotate it to landscape!
             height = self.disp.height
-
+        # Load a TTF Font
+        self.font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", FONTSIZE)
         self.image = Image.new("RGB", (width, height))
 
         # Get drawing object to draw on image.
@@ -290,8 +291,7 @@ class Oven(threading.Thread):
         )
         self.disp.image(self.image)
 
-        # Load a TTF Font
-        self.font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", FONTSIZE)
+        
 
     def reset(self):
         self.cost = 0
