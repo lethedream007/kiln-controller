@@ -492,48 +492,7 @@ class Oven(threading.Thread):
     def set_ovenwatcher(self,watcher):
         log.info("ovenwatcher set in oven class")
         self.ovenwatcher = watcher
-
-    def display(self):
-        if config.enableDisplay:
-            # Make sure to create image with mode 'RGB' for full color.
-            if self.disp.rotation % 180 == 90:
-                height = self.disp.width  # we swap height/width to rotate it to landscape!
-                width = self.disp.height
-            else:
-                width = self.disp.width  # we swap height/width to rotate it to landscape!
-                height = self.disp.height
-            
-            # Draw a blank rectangle to clear the screen
-            self.draw.rectangle((0, 0, width, height), fill=(255, 255, 255))
-            self.disp.image(self.image)
-            # Draw temperature Text
-            text = "Kiln: " + str(int(self.temperature)) + " F \n"
-            text += "Target: " + str(int(self.target)) + " F \n"
-            text += "Heat on: " + str(int(self.heat / self.time_step * 100)) + "%" 
-
-    #        (font_width, font_height) = self.font.getsize(text)
-            self.draw.multiline_text(
-                (10, 10),
-                text,
-                font=self.font,
-                fill=(0, 0, 0),
-            )
-            # heat bar
-            self.draw.rectangle((0, 80, int(width * self.heat / self.time_step), 100), fill=(0, 0, 255))
-            self.draw.rectangle((int(width * self.heat / self.time_step) + 1, 80, width, 100), fill=(255, 0, 0))
-            text = str(datetime.timedelta(seconds=self.totaltime - self.runtime))
-            self.draw.text(
-                (10, 101),
-                text,
-                font=self.font,
-                fill=(0, 0, 0),
-            )
-            # Display image.
-            self.disp.image(self.image)
-        else:
-            pass
-
-        
+       
 
     def run(self):
         while True:
@@ -640,6 +599,46 @@ class SimulatedOven(Oven):
         # we don't actually spend time heating & cooling during
         # a simulation, so sleep.
         time.sleep(self.time_step)
+    
+    def display(self):
+        if config.enableDisplay:
+            # Make sure to create image with mode 'RGB' for full color.
+            if self.disp.rotation % 180 == 90:
+                height = self.disp.width  # we swap height/width to rotate it to landscape!
+                width = self.disp.height
+            else:
+                width = self.disp.width  # we swap height/width to rotate it to landscape!
+                height = self.disp.height
+            
+            # Draw a blank rectangle to clear the screen
+            self.draw.rectangle((0, 0, width, height), fill=(255, 255, 255))
+            self.disp.image(self.image)
+            # Draw temperature Text
+            text = "Kiln: " + str(int(self.temperature)) + " F \n"
+            text += "Target: " + str(int(self.target)) + " F \n"
+            text += "Heat on: " + str(int(self.heat / self.time_step * 100)) + "%" 
+
+    #        (font_width, font_height) = self.font.getsize(text)
+            self.draw.multiline_text(
+                (10, 10),
+                text,
+                font=self.font,
+                fill=(0, 0, 0),
+            )
+            # heat bar
+            self.draw.rectangle((0, 80, int(width * self.heat / self.time_step), 100), fill=(0, 0, 255))
+            self.draw.rectangle((int(width * self.heat / self.time_step), 80, width, 100), fill=(255, 0, 0))
+            text = str(datetime.timedelta(seconds=self.totaltime - self.runtime))
+            self.draw.text(
+                (10, 101),
+                text,
+                font=self.font,
+                fill=(0, 0, 0),
+            )
+            # Display image.
+            self.disp.image(self.image)
+        else:
+            pass
 
 
 class RealOven(Oven):
@@ -648,6 +647,7 @@ class RealOven(Oven):
         self.board = Board()
         self.output = Output()
         self.reset()
+        self.heat_display = 0
 
         # call parent init
         Oven.__init__(self)
@@ -676,6 +676,7 @@ class RealOven(Oven):
         self.heat = 0.0
         if heat_on > 0:
             self.heat = 1.0
+        self.heat_display = heat_on
 
         if heat_on:
             self.output.heat(heat_on)
@@ -697,6 +698,46 @@ class RealOven(Oven):
                 self.totaltime,
                 time_left))
         except KeyError:
+            pass
+
+    def display(self):
+        if config.enableDisplay:
+            # Make sure to create image with mode 'RGB' for full color.
+            if self.disp.rotation % 180 == 90:
+                height = self.disp.width  # we swap height/width to rotate it to landscape!
+                width = self.disp.height
+            else:
+                width = self.disp.width  # we swap height/width to rotate it to landscape!
+                height = self.disp.height
+            
+            # Draw a blank rectangle to clear the screen
+            self.draw.rectangle((0, 0, width, height), fill=(255, 255, 255))
+            self.disp.image(self.image)
+            # Draw temperature Text
+            text = "Kiln: " + str(int(self.board.temp_sensor.temperature)) + " F \n"
+            text += "Target: " + str(int(self.target)) + " F \n"
+            text += "Heat on: " + str(int(self.heat_display / self.time_step * 100)) + "%" 
+
+    #        (font_width, font_height) = self.font.getsize(text)
+            self.draw.multiline_text(
+                (10, 10),
+                text,
+                font=self.font,
+                fill=(0, 0, 0),
+            )
+            # heat bar
+            self.draw.rectangle((0, 80, int(width * self.heat / self.time_step), 100), fill=(0, 0, 255))
+            self.draw.rectangle((int(width * self.heat / self.time_step), 80, width, 100), fill=(255, 0, 0))
+            text = str(datetime.timedelta(seconds=self.totaltime - self.runtime))
+            self.draw.text(
+                (10, 101),
+                text,
+                font=self.font,
+                fill=(0, 0, 0),
+            )
+            # Display image.
+            self.disp.image(self.image)
+        else:
             pass
 
 class Profile():
