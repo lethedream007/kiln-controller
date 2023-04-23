@@ -495,10 +495,12 @@ class Oven(threading.Thread):
         self.draw.rectangle((0, 0, width, height), fill=(255, 255, 255))
         self.disp.image(self.image)
         # Draw Some Text
-        text = "Temperature: " + str(int(self.temperature))
-        (font_width, font_height) = self.font.getsize(text)
-        self.draw.text(
-            (width // 2 - font_width // 2, height // 2 - font_height // 2),
+        text = "Kiln: \n" + str(int(self.temperature)) + " F\n"
+        text += "Target: \n" + str(int(self.target)) + " F"
+
+#        (font_width, font_height) = self.font.getsize(text)
+        self.draw.multiline_text(
+            (10, 10),
             text,
             font=self.font,
             fill=(0, 0, 0),
