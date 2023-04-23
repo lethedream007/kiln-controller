@@ -472,13 +472,6 @@ class SimulatedOven(Oven):
         # set temps to the temp of the surrounding environment
         self.t = self.t_env # deg C temp of oven
         self.t_h = self.t_env #deg C temp of heating element
-
-        super().__init__()
-
-        # start thread
-        self.start()
-        log.info("SimulatedOven started")
-
         if config.enableDisplay:
             self.display_text = ""
             # First define some constants to allow easy resizing of shapes.
@@ -532,6 +525,14 @@ class SimulatedOven(Oven):
                 fill=(0, 0, 0),
             )
             self.disp.image(self.image)
+
+        super().__init__()
+
+        # start thread
+        self.start()
+        log.info("SimulatedOven started")
+
+        
 
     def reset(self):
         super().reset()
@@ -665,13 +666,6 @@ class RealOven(Oven):
         self.reset()
         self.heat_display = 0
         
-
-        # call parent init
-        Oven.__init__(self)
-
-        # start thread
-        self.start()
-
         if config.enableDisplay:
             self.display_text = ""
             # First define some constants to allow easy resizing of shapes.
@@ -725,6 +719,14 @@ class RealOven(Oven):
                 fill=(0, 0, 0),
             )
             self.disp.image(self.image)
+            
+        # call parent init
+        Oven.__init__(self)
+
+        # start thread
+        self.start()
+
+        
 
     def reset(self):
         super().reset()
