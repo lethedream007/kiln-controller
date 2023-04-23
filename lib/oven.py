@@ -726,8 +726,8 @@ class RealOven(Oven):
                 fill=(0, 0, 0),
             )
             # heat bar
-            self.draw.rectangle((0, 80, int(width * self.heat / self.time_step), 100), fill=(0, 0, 255))
-            self.draw.rectangle((int(width * self.heat / self.time_step), 80, width, 100), fill=(255, 0, 0))
+            self.draw.rectangle((0, 80, int(width * self.heat_display / self.time_step), 100), fill=(0, 0, 255))
+            self.draw.rectangle((int(width * self.heat_display / self.time_step), 80, width, 100), fill=(255, 0, 0))
             text = str(datetime.timedelta(seconds=self.totaltime - self.runtime))
             self.draw.text(
                 (10, 101),
