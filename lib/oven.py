@@ -284,7 +284,7 @@ class Oven(threading.Thread):
             self.display_text = "Kiln Ready."
 
     #        (font_width, font_height) = self.font.getsize(text)
-            self.draw.text(
+            self.draw.multiline_text(
                 (10, 10),
                 self.display_text,
                 font=self.font,
@@ -307,7 +307,7 @@ class Oven(threading.Thread):
         self.heat = 0
         self.pid = PID(ki=config.pid_ki, kd=config.pid_kd, kp=config.pid_kp)
         if config.enableDisplay:
-            self.draw.text(
+            self.draw.multiline_text(
                 (10, 10),
                 self.display_text,
                 font=self.font,
@@ -315,7 +315,7 @@ class Oven(threading.Thread):
             )
             self.display_text = "Kiln Ready."
     #        (font_width, font_height) = self.font.getsize(text)
-            self.draw.text(
+            self.draw.multiline_text(
                 (10, 10),
                 self.display_text,
                 font=self.font,
