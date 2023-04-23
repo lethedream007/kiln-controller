@@ -279,6 +279,15 @@ class Oven(threading.Thread):
 
 #        # Draw a white filled box as the background
         self.draw.rectangle((0, 0, width, height), fill=(255, 255, 255))
+        text = "Kiln Ready."
+
+#        (font_width, font_height) = self.font.getsize(text)
+        self.draw.text(
+            (10, 10),
+            text,
+            font=self.font,
+            fill=(0, 0, 0),
+        )
         self.disp.image(self.image)
 
         # Load a TTF Font
@@ -512,7 +521,7 @@ class Oven(threading.Thread):
         self.draw.rectangle((int(width * self.heat / self.time_step) + 1, 80, width, 100), fill=(255, 0, 0))
         text = str(datetime.timedelta(seconds=self.totaltime - self.runtime))
         self.draw.text(
-            (10, 110),
+            (10, 101),
             text,
             font=self.font,
             fill=(0, 0, 0),
