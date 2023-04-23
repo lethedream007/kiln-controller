@@ -13,6 +13,8 @@ import board
 from PIL import Image, ImageDraw, ImageFont
 import st7735  # pylint: disable=unused-import
 
+import datetime
+
 log = logging.getLogger(__name__)
 
 class DupFilter(object):
@@ -238,8 +240,7 @@ class Oven(threading.Thread):
         self.reset()
 
         # First define some constants to allow easy resizing of shapes.
-        BORDER = 20
-        FONTSIZE = 24
+        FONTSIZE = 20
 
         # Configuration for CS and DC pins (these are PiTFT defaults):
         cs_pin = digitalio.DigitalInOut(board.CE0)
@@ -494,9 +495,10 @@ class Oven(threading.Thread):
         # Draw a blank rectangle to clear the screen
         self.draw.rectangle((0, 0, width, height), fill=(255, 255, 255))
         self.disp.image(self.image)
-        # Draw Some Text
-        text = "Kiln: \n" + str(int(self.temperature)) + " F\n"
-        text += "Target: \n" + str(int(self.target)) + " F"
+        # Draw temperature Text
+        text = "Kiln: " + str(int(self.temperature)) + " F \n"
+        text += "Target: " + str(int(self.target)) + " F \n"
+        text += "Heat on: " + str(int(self.heat / self.time_step * 100)) + "%" 
 
 #        (font_width, font_height) = self.font.getsize(text)
         self.draw.multiline_text(
@@ -505,9 +507,20 @@ class Oven(threading.Thread):
             font=self.font,
             fill=(0, 0, 0),
         )
-
+        # heat bar
+        self.draw.rectangle((0, 80, int(width * self.heat / self.time_step), 100), fill=(0, 0, 255))
+        self.draw.rectangle((int(width * self.heat / self.time_step) + 1, 80, width, 100), fill=(255, 0, 0))
+        text = str(datetime.timedelta(seconds=self.totaltime - self.runtime))
+        self.draw.text(
+            (10, 110),
+            text,
+            font=self.font,
+            fill=(0, 0, 0),
+        )
         # Display image.
         self.disp.image(self.image)
+
+        
 
     def run(self):
         while True:
