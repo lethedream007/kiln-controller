@@ -17,6 +17,9 @@ log_format = '%(asctime)s %(levelname)s %(name)s: %(message)s'
 ### Server
 listening_port = 8081
 
+### Display
+enableDisplay = True
+
 ########################################################################
 # Cost Information
 #
@@ -39,7 +42,7 @@ currency_type   = "$"   # Currency Symbol to show when calculating cost to run j
 
 ### Outputs
 gpio_heat = 23  # Switches zero-cross solid-state-relay
-gpio_relay = 24 # Switches mechanical relay (main power switch to the elements)
+gpio_relay = 16 # Switches mechanical relay (main power switch to the elements)
 
 ### Thermocouple Adapter selection:
 #   max31855 - bitbang SPI interface

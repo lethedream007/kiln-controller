@@ -239,57 +239,58 @@ class Oven(threading.Thread):
         self.time_step = config.sensor_time_wait
         self.reset()
 
-        # First define some constants to allow easy resizing of shapes.
-        FONTSIZE = 20
+        if config.enableDisplay:
+            # First define some constants to allow easy resizing of shapes.
+            FONTSIZE = 20
 
-        # Configuration for CS and DC pins (these are PiTFT defaults):
-        cs_pin = digitalio.DigitalInOut(board.CE0)
-        dc_pin = digitalio.DigitalInOut(board.D25)
-        reset_pin = digitalio.DigitalInOut(board.D24)
+            # Configuration for CS and DC pins (these are PiTFT defaults):
+            cs_pin = digitalio.DigitalInOut(board.CE0)
+            dc_pin = digitalio.DigitalInOut(board.D25)
+            reset_pin = digitalio.DigitalInOut(board.D24)
 
-        # Config for display baudrate (default max is 24mhz):
-        BAUDRATE = 24000000
+            # Config for display baudrate (default max is 24mhz):
+            BAUDRATE = 24000000
 
-        # Setup SPI bus using hardware SPI:
-        spi = board.SPI()
+            # Setup SPI bus using hardware SPI:
+            spi = board.SPI()
 
-        # pylint: disable=line-too-long
-        # Create the display:
-        self.disp = st7735.ST7735R(spi, rotation=90,                           # 1.8" ST7735R
-            cs=cs_pin,
-            dc=dc_pin,
-            rst=reset_pin,
-            baudrate=BAUDRATE,
-        )
-        # pylint: enable=line-too-long
+            # pylint: disable=line-too-long
+            # Create the display:
+            self.disp = st7735.ST7735R(spi, rotation=90,                           # 1.8" ST7735R
+                cs=cs_pin,
+                dc=dc_pin,
+                rst=reset_pin,
+                baudrate=BAUDRATE,
+            )
+            # pylint: enable=line-too-long
 
-        # Create blank image for drawing.
-        # Make sure to create image with mode 'RGB' for full color.
-        if self.disp.rotation % 180 == 90:
-            height = self.disp.width  # we swap height/width to rotate it to landscape!
-            width = self.disp.height
-        else:
-            width = self.disp.width  # we swap height/width to rotate it to landscape!
-            height = self.disp.height
-        # Load a TTF Font
-        self.font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", FONTSIZE)
-        self.image = Image.new("RGB", (width, height))
+            # Create blank image for drawing.
+            # Make sure to create image with mode 'RGB' for full color.
+            if self.disp.rotation % 180 == 90:
+                height = self.disp.width  # we swap height/width to rotate it to landscape!
+                width = self.disp.height
+            else:
+                width = self.disp.width  # we swap height/width to rotate it to landscape!
+                height = self.disp.height
+            # Load a TTF Font
+            self.font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", FONTSIZE)
+            self.image = Image.new("RGB", (width, height))
 
-        # Get drawing object to draw on image.
-        self.draw = ImageDraw.Draw(self.image)
+            # Get drawing object to draw on image.
+            self.draw = ImageDraw.Draw(self.image)
 
-#        # Draw a white filled box as the background
-        self.draw.rectangle((0, 0, width, height), fill=(255, 255, 255))
-        text = "Kiln Ready."
+    #        # Draw a white filled box as the background
+            self.draw.rectangle((0, 0, width, height), fill=(255, 255, 255))
+            text = "Kiln Ready."
 
-#        (font_width, font_height) = self.font.getsize(text)
-        self.draw.text(
-            (10, 10),
-            text,
-            font=self.font,
-            fill=(0, 0, 0),
-        )
-        self.disp.image(self.image)
+    #        (font_width, font_height) = self.font.getsize(text)
+            self.draw.text(
+                (10, 10),
+                text,
+                font=self.font,
+                fill=(0, 0, 0),
+            )
+            self.disp.image(self.image)
 
         
 
@@ -493,41 +494,44 @@ class Oven(threading.Thread):
         self.ovenwatcher = watcher
 
     def display(self):
-        # Make sure to create image with mode 'RGB' for full color.
-        if self.disp.rotation % 180 == 90:
-            height = self.disp.width  # we swap height/width to rotate it to landscape!
-            width = self.disp.height
-        else:
-            width = self.disp.width  # we swap height/width to rotate it to landscape!
-            height = self.disp.height
-        
-        # Draw a blank rectangle to clear the screen
-        self.draw.rectangle((0, 0, width, height), fill=(255, 255, 255))
-        self.disp.image(self.image)
-        # Draw temperature Text
-        text = "Kiln: " + str(int(self.temperature)) + " F \n"
-        text += "Target: " + str(int(self.target)) + " F \n"
-        text += "Heat on: " + str(int(self.heat / self.time_step * 100)) + "%" 
+        if config.enableDisplay:
+            # Make sure to create image with mode 'RGB' for full color.
+            if self.disp.rotation % 180 == 90:
+                height = self.disp.width  # we swap height/width to rotate it to landscape!
+                width = self.disp.height
+            else:
+                width = self.disp.width  # we swap height/width to rotate it to landscape!
+                height = self.disp.height
+            
+            # Draw a blank rectangle to clear the screen
+            self.draw.rectangle((0, 0, width, height), fill=(255, 255, 255))
+            self.disp.image(self.image)
+            # Draw temperature Text
+            text = "Kiln: " + str(int(self.temperature)) + " F \n"
+            text += "Target: " + str(int(self.target)) + " F \n"
+            text += "Heat on: " + str(int(self.heat / self.time_step * 100)) + "%" 
 
-#        (font_width, font_height) = self.font.getsize(text)
-        self.draw.multiline_text(
-            (10, 10),
-            text,
-            font=self.font,
-            fill=(0, 0, 0),
-        )
-        # heat bar
-        self.draw.rectangle((0, 80, int(width * self.heat / self.time_step), 100), fill=(0, 0, 255))
-        self.draw.rectangle((int(width * self.heat / self.time_step) + 1, 80, width, 100), fill=(255, 0, 0))
-        text = str(datetime.timedelta(seconds=self.totaltime - self.runtime))
-        self.draw.text(
-            (10, 101),
-            text,
-            font=self.font,
-            fill=(0, 0, 0),
-        )
-        # Display image.
-        self.disp.image(self.image)
+    #        (font_width, font_height) = self.font.getsize(text)
+            self.draw.multiline_text(
+                (10, 10),
+                text,
+                font=self.font,
+                fill=(0, 0, 0),
+            )
+            # heat bar
+            self.draw.rectangle((0, 80, int(width * self.heat / self.time_step), 100), fill=(0, 0, 255))
+            self.draw.rectangle((int(width * self.heat / self.time_step) + 1, 80, width, 100), fill=(255, 0, 0))
+            text = str(datetime.timedelta(seconds=self.totaltime - self.runtime))
+            self.draw.text(
+                (10, 101),
+                text,
+                font=self.font,
+                fill=(0, 0, 0),
+            )
+            # Display image.
+            self.disp.image(self.image)
+        else:
+            pass
 
         
 
